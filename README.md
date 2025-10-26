@@ -1,66 +1,203 @@
-# ann-inverse-kinematics
-ANN solution for the inverse kinematics of a two-link manipulator using TensorFlow Keras.
-# [cite_start]ANN-Based Solution for Inverse Kinematics (MTE438 Assignment One) [cite: 27]
+# 🦾 ANN-Based Inverse Kinematics Solver (Two-Link Manipulator)
 
-[cite_start]This repository contains the code and report for solving the inverse kinematics problem of a two-link manipulator using an Artificial Neural Network (ANN) with TensorFlow Keras[cite: 1, 3, 27, 29]. [cite_start]The project is part of the MTE438: AI in Mechatronics and Robotics course[cite: 26].
+## 📌 Overview
+This project implements an **Artificial Neural Network (ANN)** using TensorFlow/Keras to solve **inverse kinematics** for a planar two-link robotic manipulator (2-DOF arm).  
+Given an end-effector position *(x, y)*, the network predicts the joint angles *(θ₁, θ₂)* required to reach that point.
 
-## Problem Description 🤖
+The project includes:
+- Training/testing dataset generation via **forward kinematics**
+- ANN training & validation
+- Performance evaluation
+- Sample prediction visualization
 
-[cite_start]The goal is to predict the joint angles ($\theta_1, \theta_2$) required for a two-link planar manipulator (with link lengths $a_1=1$ and $a_2=1$) to reach a given end-effector position $(x, y)$[cite: 2, 36, 41]. [cite_start]This is the inverse kinematics problem[cite: 1, 2].
+---
+
+## 🤖 Manipulator Model
+
+- Link lengths: `a1 = 1`, `a2 = 1`
+- Degrees of freedom: `2`
+- Workspace is a circle (`radius = 2`)
+
+Forward kinematics formulas:
+
+```
+
+x = a1*cos(θ1) + a2*cos(θ1+θ2)
+y = a1*sin(θ1) + a2*sin(θ1+θ2)
+
+```
+
+---
+
+## 🧠 ANN Architecture
+
+| Layer | Units | Activation |
+|-------|-------|------------|
+| Input | 64 | ReLU |
+| Hidden | 32 | ReLU |
+| Output | 2 (θ₁, θ₂) | Linear |
+
+- Loss function: **MSE**
+- Optimizer: **Adam**
+- Epochs: `50`
+- Batch size: `32`
+
+---
+
+## 🗂️ Dataset Generation
+
+Random joint angles are sampled:
+
+- Training range: `[-π, π]`
+- Testing range: `[0, 2π]`
+
+Forward kinematics is applied to compute `(x, y)`.
+
+Datasets are saved as:
+
+```
+
+training_data.csv
+testing_dataset.csv
+
+```
+
+Columns include:
+
+```
+
+Theta1, Theta2, X, Y
+
+```
+
+✅ These `.csv` files are **generated automatically by the notebook**.
+
+⚠️ **Important:**  
+> Run **Section 1** of the notebook first to auto-generate the datasets.
+
+---
+
+## 🚀 Training
+
+Training monitors:
+
+- Training loss
+- Validation loss
+
+Both steadily decrease across epochs.
+
+The trained model is saved as:
+
+```
+
+inverse_kinematics_model.h5
+
+```
+
+---
+
+## 📊 Evaluation Metrics
+After training, the model is tested on an unseen dataset:
+
+- **Test Loss**
+- **Mean Absolute Error (MAE)**
+
+Sample predictions are visualized to compare:
+
+- Ground truth arm configuration
+- Predicted arm configuration
+
+---
+
+## 📉 Results Summary
+
+✅ Model converged successfully  
+✅ Predictions demonstrate reasonable accuracy  
+✅ Loss curves indicate healthy learning behavior
+
+Example MAE (may vary):
+
+```
+
+Mean Absolute Error ≈ 3.23
+
+```
+
+---
+
+## ⚠️ Challenges & Notes
+
+### ✅ Forward/Inverse Relationship
+Ensuring correct forward kinematics equations was critical.  
+Sanity-checks and visual plots were used to validate dataset correctness.
+
+### 🔁 Many-to-One Mapping
+Inverse kinematics is **not unique**.  
+For certain (x, y), multiple θ₁/θ₂ combinations are valid.  
+This contributes to prediction error.
+
+### 📦 Dataset Distribution
+Random sampling can cluster many samples near the boundaries.
+
+---
+
+## 🔧 Future Improvements
+
+- Add more layers / different activation functions
+- Normalize dataset
+- Try cyclic angle loss (`sin/cos` encoding)
+- Add workspace constraints
+- Test deeper architectures (200-200-100-50)
+
+---
+
+## 🗃️ Repository Structure
+
+```
+
+├── 120200214.ipynb            # Main notebook
+├── training_data.csv          # Auto-generated dataset
+├── testing_dataset.csv        # Auto-generated dataset
+├── inverse_kinematics_model.h5# Saved trained model
+├── README.md                  # You are here :)
+└── figures/                  # (optional) sample plots
+
+````
+
+---
+
+## ▶️ How to Run
+
+Install dependencies:
+
+```bash
+pip install tensorflow pandas numpy matplotlib
+````
+
+Then open `120200214.ipynb` in:
+
+* Google Colab ✅ recommended
+* Jupyter Notebook
+
+Run:
+
+1. **Section 1** → generates datasets
+2. **Training section** → trains model
+3. **Evaluation section** → tests performance
+4. **Visualization** → compares predicted vs. true arm
+
+---
+
+## 👤 Author
+
+**Mostafa Ahmed**
+Mechatronics & Robotics Engineering
+Egypt-Japan University of Science & Technology (E-JUST)
+
+---
+
+```
+
+---
 
 
-
-## Methodology 🧠
-
-[cite_start]An Artificial Neural Network (ANN) model is implemented using TensorFlow Keras[cite: 3, 43].
-* [cite_start]**Input:** End-effector coordinates $(x, y)$[cite: 36, 43].
-* [cite_start]**Output:** Predicted joint angles $(\theta_1, \theta_2)$[cite: 4, 36, 43].
-* [cite_start]**Architecture:** The model uses fully connected (Dense) layers with ReLU activation functions in the hidden layers[cite: 4, 5, 44]. [cite_start]The specific architecture used here consists of an input layer (2 neurons), one hidden layer (64 neurons), another hidden layer (32 neurons), and an output layer (2 neurons)[cite: 4].
-* [cite_start]**Training Data:** Generated using the forward kinematics equations for the manipulator, creating pairs of joint angles and their corresponding end-effector positions[cite: 6, 37, 40].
-* [cite_start]**Training:** The model is trained using the Adam optimizer and the mean squared error loss function[cite: 8, 46].
-* [cite_start]**Evaluation:** Performance is evaluated on a separate testing dataset using the Mean Absolute Error (MAE) between predicted and actual joint angles[cite: 10, 14, 56].
-
-## Project Structure 📂
-
-* [cite_start]`/code`: Contains the Jupyter Notebook (`120200214.ipynb`) with the implementation[cite: 59].
-* [cite_start]`/data`: Holds the training (`training_data.csv`) and testing (`testing_data.csv`) datasets generated by the notebook[cite: 7, 41]. (Note: Ignored by default in `.gitignore`)
-* `/models`: Contains the saved Keras model (`inverse_kinematics_model.h5`). (Note: Ignored by default in `.gitignore`)
-* [cite_start]`/report`: Contains the assignment report (`Assignment_One_Report.pdf`) describing the model, data generation, and results[cite: 61, 62].
-* [cite_start]`Assignment one.pdf`: The original assignment description [cite: 22-65].
-* `requirements.txt`: Required Python libraries.
-* `.gitignore`: Specifies intentionally untracked files.
-* `README.md`: This file.
-
-## Setup and Installation ⚙️
-
-1.  Clone the repository:
-    ```bash
-    git clone [https://github.com/](https://github.com/)<your-username>/ann-inverse-kinematics.git
-    cd ann-inverse-kinematics
-    ```
-2.  (Recommended) Create and activate a Python virtual environment.
-3.  Install the required packages:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-## Usage 🚀
-
-1.  Navigate to the `code/` directory.
-2.  Open and run the Jupyter Notebook `120200214.ipynb`.
-3.  This will perform the following steps:
-    * [cite_start]Generate the training and testing data (saving `.csv` files to the `data/` directory)[cite: 40].
-    * [cite_start]Define and compile the ANN model architecture[cite: 4, 43, 44].
-    * [cite_start]Train the model using the training data (saving the `.h5` model file to the `models/` directory)[cite: 46].
-    * [cite_start]Evaluate the model on the testing data and calculate the MAE[cite: 55, 56].
-    * [cite_start]Plot training/validation loss curves and sample predictions[cite: 11, 13, 57].
-
-## Results 📊
-
-[cite_start]The model demonstrated promising performance in predicting the joint angles[cite: 18]. [cite_start]The training and validation loss decreased over epochs, indicating good convergence[cite: 11]. [cite_start]Visual inspection of sample predictions showed reasonable accuracy[cite: 13, 57]. [cite_start]The Mean Absolute Error (MAE) quantifies the prediction accuracy[cite: 14, 56].
-
-[cite_start]For a detailed analysis, including loss plots, sample prediction visualizations, and discussion of challenges (like ensuring correct kinematics equations implementation [cite: 15, 17][cite_start]), please refer to the `Assignment_One_Report.pdf` in the `/report` directory[cite: 61, 62, 63].
-
-## Future Work 🤔
-
-[cite_start]Potential future work could involve exploring more complex network architectures, adding more data, or incorporating physical constraints[cite: 21].
