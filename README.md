@@ -157,10 +157,10 @@ Random sampling can cluster many samples near the boundaries.
 
 ├── 120200214.ipynb            # Main notebook
 ├── training_data.csv          # Auto-generated dataset
-├── testing_dataset.csv        # Auto-generated dataset
+├── testing_data.csv        # Auto-generated dataset
 ├── inverse_kinematics_model.h5# Saved trained model
 ├── README.md                  # You are here :)
-└── figures/                  # (optional) sample plots
+└── figures/                  
 
 ````
 
